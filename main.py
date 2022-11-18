@@ -1,31 +1,65 @@
 from google_images_search import GoogleImagesSearch
+from google_images_download import google_images_download
 from dotenv import load_dotenv
 import os
 import curses
+import numpy as np 
+import cv2
+from PIL import Image 
 
 #spotipy or genius
 
 def Get_lyrics(artist,song):
     return PyLyrics.getAlbums("Eminem")
 
+response = google_images_download.googleimagesdownload()
+
 def Searcher(query):
-    gis = GoogleImagesSearch(DK,CX,progressbar_fn=progressbar)
-    with GoogleImagesSearch(DK,CX) as gis:
-            _search_params ={
-                'q': term,
-                'num': 3,
-                'safe' :'off',
-                'fileType' : 'png'
-            }
-    gis.search(search_params=_search_params,path_to_dir=path)
+     arguments = {"keywords": query,
+                 "format": "jpg",
+                 "limit":4,
+                 "print_urls":True,
+                 "size": "medium",
+                 "aspect_ratio":"panoramic"}
+     try:
+        response.download(arguments)
+     
+    # Handling File NotFound Error   
+     except FileNotFoundError:
+        arguments = {"keywords": query,
+                     "format": "jpg",
+                     "limit":4,
+                     "print_urls":True,
+                     "size": "medium"}
+                      
+        # Providing arguments for the searched query
+        try:
+            # Downloading the photos based
+            # on the given arguments
+            response.download(arguments)
+        except:
+            pass
 
 def progressbar(url, progress):
     print(url + ' '+ progress + '%' )
 
-load_dotenv()
+def VidComp():
+    os.chdir('H:\Documents\SongInPictures\IMG')
+
+    num_of_images = len(os.listdir('.'))
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v') 
+    video = cv2.VideoWriter('video.avi', fourcc, 1, (width, height))
+    for j in range(0,5):
+        img = cv2.imread(str(i) + '.png')
+        video.write(img)
+
+    cv2.destroyAllWindows()
+    video.release()
+
+#load_dotenv()
 path = 'H:\Documents\SongInPictures\IMG'
-DK = os.environ.get('GCS_DEVELOPER_KEY')
-CX = os.environ.get('GCS_DEVELOPER_CK')
+#DK = os.environ.get('GCS_DEVELOPER_KEY')
+#CX = os.environ.get('GCS_DEVELOPER_CK')
 
 #print("Type the artist:")
 #artist = input()
